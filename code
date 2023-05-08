@@ -1,0 +1,58 @@
+import random
+
+# Define the initial variables
+balance = 5000
+bet = 25
+win_streak = 0
+max_win_streak = 10
+
+# Simulate 1000 hands
+for i in range(1000):
+    # Check if the player has reached the maximum win streak
+    if win_streak == max_win_streak:
+        bet = 25
+        win_streak = 0
+        
+    # Place the bet and deal the cards
+    balance -= bet
+    deck = []
+    for j in range(6):
+        deck.extend([2,3,4,5,6,7,8,9,10,10,10,10,11]*4)
+    random.shuffle(deck)
+    player_cards = [deck.pop(), deck.pop()]
+    dealer_card = deck.pop()
+    
+    # Player's turn
+    while sum(player_cards) < 12:
+        player_cards.append(deck.pop())
+    while sum(player_cards) < 17 and (11 not in player_cards):
+        player_cards.append(deck.pop())
+    while sum(player_cards) < 18 and (11 in player_cards):
+        player_cards[player_cards.index(11)] = 1
+    if sum(player_cards) > 21:
+        balance += bet
+        win_streak = 0
+        continue
+    
+    # Dealer's turn
+    if dealer_card == 11:
+        dealer_card = 1
+    while sum([dealer_card] + dealer_card) < 17:
+        dealer_card.append(deck.pop())
+    if sum([dealer_card] + dealer_card) > 21:
+        balance += bet*2
+        win_streak += 1
+        bet += 25
+        continue
+    
+    # Compare hands
+    if sum(player_cards) > sum([dealer_card] + dealer_card):
+        balance += bet*2
+        win_streak += 1
+        bet += 25
+    elif sum(player_cards) == sum([dealer_card] + dealer_card):
+        balance += bet
+    else:
+        win_streak = 0
+
+print(f"After 1000 hands with a $25 starting bet and a maximum win streak of {max_win_streak}, the final balance is ${balance}.")
